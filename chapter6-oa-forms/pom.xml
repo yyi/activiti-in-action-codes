@@ -16,9 +16,9 @@
 
 		<!-- activit begin -->
 		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-engine</artifactId>
-			<version>${activiti.version}</version>
+			<groupId>org.flowable</groupId>
+			<artifactId>flowable-engine</artifactId>
+			<version>5.23.0</version>
 		</dependency>
 		<!-- activit end -->
 
