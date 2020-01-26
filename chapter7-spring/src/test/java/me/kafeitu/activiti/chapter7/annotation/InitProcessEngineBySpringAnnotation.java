@@ -8,8 +8,7 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.task.Task;
-import org.activiti.spring.annotations.EnableActiviti;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+ import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -25,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 public class InitProcessEngineBySpringAnnotation {
 
     @Configuration
-    @EnableActiviti
+
     public static class SpringAnnotationConfiguration {
 
         /**

@@ -7,7 +7,7 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
-import org.activiti.spring.annotations.EnableActiviti;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,11 +20,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Joram Barrez
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(locations = {"classpath*:/a*.xml"})
 public class SimplestEnableActivitiTest {
 
   @Configuration
-  @EnableActiviti
   public static class SimplestConfiguration {
 
   }
