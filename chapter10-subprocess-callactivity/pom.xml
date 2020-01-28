@@ -16,14 +16,14 @@
 
 		<!-- activit begin -->
 		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-engine</artifactId>
-			<version>${activiti.version}</version>
+			<groupId>org.flowable</groupId>
+			<artifactId>flowable-engine</artifactId>
+			<version>5.23.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-spring</artifactId>
-			<version>${activiti.version}</version>
+			<groupId>org.flowable</groupId>
+			<artifactId>flowable-spring</artifactId>
+			<version>5.23.0</version>
 		</dependency>
 		<!-- activit end -->
 
