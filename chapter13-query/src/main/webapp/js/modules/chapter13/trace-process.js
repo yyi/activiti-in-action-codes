@@ -37,15 +37,17 @@ function showActivities() {
 
         var positionHtml = "";
 
-        var diagramPositon = $('#processDiagram').position();
+        //var diagramPositon = $('#processDiagram').position();
+        var diagramPositon = $('#processDiagram').offset();
+
         var varsArray = new Array();
         $.each(infos, function (i, v) {
             var $positionDiv = $('<div/>', {
                 'class': 'activity-attr'
             }).css({
                     position: 'absolute',
-                    left: (v.x - 1),
-                    top: (v.y - 1),
+                    left: diagramPositon.left+(v.x - 1),
+                    top: diagramPositon.top+(v.y - 1),
                     width: (v.width - 2),
                     height: (v.height - 2),
                     backgroundColor: 'black',
@@ -57,8 +59,8 @@ function showActivities() {
                 'class': 'activity-attr-border'
             }).css({
                     position: 'absolute',
-                    left: (v.x - 1),
-                    top: (v.y - 1),
+                    left: diagramPositon.left+(v.x - 1),
+                    top: diagramPositon.top+(v.y - 1),
                     width: (v.width - 4),
                     height: (v.height - 3)
                 });
