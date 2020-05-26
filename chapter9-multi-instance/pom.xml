@@ -175,6 +175,13 @@
 			<artifactId>subethasmtp</artifactId>
 			<version>3.1.7</version>
 		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.20</version>
+		</dependency>
+
 	</dependencies>
 
 	<!-- 编译时一些插件依赖 -->
@@ -234,7 +241,7 @@
 								<property name="dbunit.datatype" value="org.dbunit.ext.h2.H2DataTypeFactory" />
 
 								<taskdef name="dbunit" classname="org.dbunit.ant.DbUnitTask" classpathref="maven.runtime.classpath" />
-								
+
 								<!-- add init datas -->
 								<dbunit driver="${jdbc.driver}" url="${jdbc.url}" userid="${jdbc.username}" password="${jdbc.password}">
 									<dbconfig>
