@@ -238,7 +238,7 @@
 							<target>
 								<property file="src/main/resources/application.properties" />
 								<property name="sql.type" value="${sql.type}" />
-								<property name="dbunit.datatype" value="org.dbunit.ext.h2.H2DataTypeFactory" />
+								<property name="dbunit.datatype" value="org.dbunit.ext.mysql.MySqlDataTypeFactory" />
 
 								<taskdef name="dbunit" classname="org.dbunit.ant.DbUnitTask" classpathref="maven.runtime.classpath" />
 
