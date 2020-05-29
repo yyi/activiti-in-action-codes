@@ -44,6 +44,8 @@
         </script>
     </c:if>
 
+	<img src="<c:url value="/chapter6/task/img/${task.processInstanceId}" />" alt="TestDisplay"/>
+
 	<h3>任务办理—[${task.name}]
 		<c:if test="${not empty task.processDefinitionId}">
 			，流程定义ID：[${task.processDefinitionId}]
