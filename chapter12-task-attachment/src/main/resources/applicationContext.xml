@@ -44,12 +44,17 @@
 	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
 
+	<bean id="customProcessDiagramGenerator" class="me.kafeitu.activiti.CustomProcessDiagramGenerator"/>
+
 	<!-- Activiti引擎配置 -->
 	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
 		<property name="processEngineName" value="spring"></property>
 		<property name="dataSource" ref="dataSource" />
 		<property name="transactionManager" ref="transactionManager" />
 		<property name="databaseSchemaUpdate" value="true" />
+		<property name="activityFontName" value="宋体"></property>
+		<property name="labelFontName" value="宋体"></property>
+		<property name="processDiagramGenerator" ref="customProcessDiagramGenerator"/>
 		<property name="jobExecutorActivate" value="false" />
 		<property name="deploymentResources">
 			<list>

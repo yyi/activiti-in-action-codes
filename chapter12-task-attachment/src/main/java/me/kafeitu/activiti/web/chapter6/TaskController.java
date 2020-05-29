@@ -1,15 +1,20 @@
 package me.kafeitu.activiti.web.chapter6;
 
+import me.kafeitu.activiti.CustomProcessDiagramGeneratorI;
+import me.kafeitu.activiti.WorkflowConstants;
 import me.kafeitu.activiti.chapter6.util.UserUtil;
-import org.activiti.engine.FormService;
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.IdentityService;
-import org.activiti.engine.TaskService;
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.engine.*;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.pvm.PvmTransition;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.task.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +27,17 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * 任务控制器
@@ -320,9 +331,9 @@ public class TaskController {
     @ResponseBody
     public String deleteParticipant(@PathVariable("taskId") String taskId, @RequestParam(value = "userId", required = false) String userId,
                                     @RequestParam(value = "groupId", required = false) String groupId, @RequestParam("type") String type) {
-    /*
-     * 区分用户、组，使用不同的处理方式
-     */
+        /*
+         * 区分用户、组，使用不同的处理方式
+         */
         if (StringUtils.isNotBlank(groupId)) {
             taskService.deleteCandidateGroup(taskId, groupId);
         } else {
@@ -419,4 +430,84 @@ public class TaskController {
         return "success";
     }
 
+    @Autowired
+    private RepositoryService repositoryService;
+
+    @Autowired
+    private RuntimeService runtimeService;
+
+    @Autowired
+    private ProcessEngineConfiguration processEngineConfiguration;
+
+    /**
+     * @读取动态流程图
+     */
+    @RequestMapping("task/img/{processionInstanceId}")
+    public void readProcessImg(@PathVariable("processionInstanceId") String processInstanceId, HttpServletResponse response) throws IOException {
+        if (StringUtils.isBlank(processInstanceId)) {
+            //logger.error("参数为空");
+        }
+        HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId).singleResult();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
+        ProcessDefinitionEntity definitionEntity = (ProcessDefinitionEntity) repositoryService
+                .getProcessDefinition(processInstance.getProcessDefinitionId());
+        List<HistoricActivityInstance> highLightedActivitList = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
+        // 高亮环节id集合
+        List<String> highLightedActivitis = new ArrayList<String>();
+        // 高亮线路id集合
+        List<String> highLightedFlows = getHighLightedFlows(definitionEntity, highLightedActivitList);
+        for (HistoricActivityInstance tempActivity : highLightedActivitList) {
+            String activityId = tempActivity.getActivityId();
+            highLightedActivitis.add(activityId);
+        }
+
+        Set<String> currIds = runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).list()
+                .stream().map(e -> e.getActivityId()).collect(Collectors.toSet());
+
+        CustomProcessDiagramGeneratorI diagramGenerator = (CustomProcessDiagramGeneratorI) processEngineConfiguration
+                .getProcessDiagramGenerator();
+        InputStream imageStream = diagramGenerator.generateDiagram(bpmnModel, "jpg", highLightedActivitis,
+                highLightedFlows, "宋体", "宋体", "宋体", null, 1.0, new Color[]{WorkflowConstants.COLOR_NORMAL, WorkflowConstants.COLOR_CURRENT}, currIds);
+        // 输出资源内容到相应对象
+        byte[] b = new byte[1024];
+        int len;
+        while ((len = imageStream.read(b, 0, 1024)) != -1) {
+            response.getOutputStream().write(b, 0, len);
+        }
+    }
+
+    private List<String> getHighLightedFlows(ProcessDefinitionEntity processDefinitionEntity,
+                                             List<HistoricActivityInstance> historicActivityInstances) {
+        List<String> highFlows = new ArrayList<>();// 用以保存高亮的线flowId
+        for (int i = 0; i < historicActivityInstances.size() - 1; i++) {// 对历史流程节点进行遍历
+            HistoricActivityInstance iThisHis = historicActivityInstances.get(i);
+
+            List<ActivityImpl> endTimeNodes = new ArrayList<>();// 用以保存后结束时间相同的节点
+            if (iThisHis.getEndTime() != null) {
+                for (int j = i + 1; j < historicActivityInstances.size(); j++) {// 对历史流程节点进行遍历
+                    HistoricActivityInstance jThisHis = historicActivityInstances.get(j);
+                    if (iThisHis.getEndTime().compareTo(jThisHis.getStartTime()) == 0) { // 如果第2个节点结束时间相同保存
+                        ActivityImpl jActivity = processDefinitionEntity
+                                .findActivity(jThisHis.getActivityId());
+                        endTimeNodes.add(jActivity);
+                    }
+                }
+
+                ActivityImpl iActivity = processDefinitionEntity
+                        .findActivity(iThisHis.getActivityId());
+                List<PvmTransition> pvmTransitions = iActivity.getOutgoingTransitions();// 取出节点的所有出去的线
+                for (PvmTransition pvmTransition : pvmTransitions) {
+// 对所有的线进行遍历
+                    ActivityImpl pvmActivityImpl = (ActivityImpl) pvmTransition.getDestination();
+// 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
+                    if (endTimeNodes.contains(pvmActivityImpl)) {
+                        highFlows.add(pvmTransition.getId());
+                    }
+                }
+            }
+        }
+        return highFlows;
+    }
 }
