@@ -17,7 +17,7 @@ import java.util.Map;
  * @author HenryYan
  */
 @Entity
-@Table(name = "LEAVE")
+@Table(name = "LEAVE1")
 public class Leave implements Serializable {
 
     private static final long serialVersionUID = 1L;

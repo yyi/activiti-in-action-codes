@@ -87,7 +87,7 @@ public class TaskController {
         List<Task> tasks = nativeTaskQuery.listPage(pageParams[0], pageParams[1]);
 
         page.setResult(tasks);
-        page.setTotalCount(nativeTaskQuery.sql("select count(*) from (" + sql + ")").count());
+        page.setTotalCount(nativeTaskQuery.sql("select count(*) from (" + sql + ") as dummy").count());
 
         // 从5.16版本开始可以使用以下方式
         /*TaskQuery taskQuery = taskService.createTaskQuery().taskCandidateOrAssigned(user.getId());

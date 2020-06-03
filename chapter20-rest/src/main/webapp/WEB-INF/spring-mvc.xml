@@ -32,7 +32,7 @@
 		<bean class="org.springframework.http.converter.BufferedImageHttpMessageConverter" />
 		<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
 		<bean class="org.springframework.http.converter.StringHttpMessageConverter" />
-		<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
+		<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
 	</util:list>
 
 	<!-- 支持上传文件 -->
